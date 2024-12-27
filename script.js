@@ -43,7 +43,7 @@ function closePopup() {
 async function testAPIConnection() {
     console.log('Testing API connection...');
     try {
-        const response = await fetch('https://test.api.jumbotail.com:6666/health', {
+        const response = await fetch('http://test.api.jumbotail.com:6666/health', {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',

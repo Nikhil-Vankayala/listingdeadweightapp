@@ -41,6 +41,14 @@ function closePopup() {
 function processCSV() {
     const fileInput = document.getElementById('csvFile');
     const file = fileInput.files[0];
+    const statusContainer = document.getElementById('processingStatus');
+    const progressBar = document.querySelector('.progress');
+    const statusText = document.getElementById('statusText');
+
+    // Initialize status container
+    statusContainer.classList.remove('hidden');
+    progressBar.style.width = '0%';
+    progressBar.style.backgroundColor = '#00A650'; // Reset to default color
 
     if (!file) {
         statusText.textContent = 'Please select a CSV file first!';
@@ -54,12 +62,6 @@ function processCSV() {
         
         // Remove header row
         rows.shift();
-
-        const statusContainer = document.getElementById('processingStatus');
-        const progressBar = document.querySelector('.progress');
-        const statusText = document.getElementById('statusText');
-        
-        statusContainer.classList.remove('hidden');
 
         try {
             // Validate CSV format
@@ -92,6 +94,10 @@ function processCSV() {
                 statusText.textContent = 'No valid records found in CSV.';
                 return;
             }
+
+            // Show processing status
+            statusText.textContent = 'Processing...';
+            progressBar.style.width = '50%';
 
             const response = await fetch('https://shipmentgateway.prod.jumbotail.com/api/sku/listing/dead-weight/batch', {
                 method: 'PUT',

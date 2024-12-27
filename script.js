@@ -46,8 +46,7 @@ async function testAPIConnection() {
         const response = await fetch('http://test.api.jumbotail.com:6666/health', {
             method: 'GET',
             headers: {
-                'Content-Type': 'application/json',
-                'Authorization': 'Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJuaWtoaWwudmFua2F5YWxhQGp1bWJvdGFpbC5jb20iLCJST0xFUyI6WyJTRUxMRVJfSjI0X1JPTEUiLCJBTExfUkVTT1VSQ0VfREVYVEVSIiwiU0VMTEVSX1BSSUNFX1NUT0NLX1VQREFURSIsIlNFTExFUl9PUFNfUk9MRSIsIkdUTV9BUkVBX1NBTEVTX01BTkFHRVIiLCJESVNUUklCVVRPUiIsIlNFTExFUl9GQ19NQU5BR0VSIiwiU0VMTEVSX0FDQ09VTlRfRVhFQ1VUSVZFIiwiU0VMTEVSIiwiU0VMTEVSX0RJU1RfU0FMRVNfTUFOQUdFUiJdLCJpc3MiOiJKdW1ib3RhaWwiLCJpYXQiOjE3MzUxODEzODd9.AwqgJDz1OT64GysGByEWj5BtPAQIVdpEM3J1idRO3ms'
+                'Content-Type': 'application/json'
             }
         });
         console.log('API Health Check Response:', response.status);
@@ -136,7 +135,7 @@ async function processCSV() {
             console.log('Making API call with data:', requestData);
             progressBar.style.width = '50%';
             
-            const response = await fetch('https://test.api.jumbotail.com:6666/api/sku/listing/dead-weight/batch', {
+            const response = await fetch('http://test.api.jumbotail.com:6666/api/sku/listing/dead-weight/batch', {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json'

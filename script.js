@@ -1,22 +1,23 @@
 // Hardcoded user credentials (for demo purposes)
 const users = [
-    { userId: "user1", password: "pass1" },
-    { userId: "user2", password: "pass2" },
-    { userId: "nikhil.vankayala", password: "nikhil" },
-    { userId: "alok.singh", password: "alokji" }
+    { userId: "nikhil.vankayala", password: "nikhil" }
 ];
 
 function login() {
     const userId = document.getElementById('userId').value;
     const password = document.getElementById('password').value;
 
+    console.log('Login attempt:', { userId });
+
     const user = users.find(u => u.userId === userId && u.password === password);
 
     if (user) {
+        console.log('Login successful');
         document.getElementById('loginForm').classList.add('hidden');
         document.getElementById('uploadSection').classList.remove('hidden');
     } else {
-        alert('Invalid credentials!');
+        console.log('Login failed');
+        alert('Invalid credentials! Please use:\nUsername: nikhil.vankayala\nPassword: nikhil');
     }
 }
 

@@ -58,7 +58,41 @@ async function testAPIConnection() {
     }
 }
 
-// Modify processCSV to check connection first
+// Add this function to update file name display
+function updateFileDisplay(file) {
+    const uploadArea = document.querySelector('.upload-area');
+    const selectedFileDiv = document.getElementById('selectedFile');
+    
+    if (file) {
+        selectedFileDiv.textContent = `Selected: ${file.name}`;
+        uploadArea.classList.add('has-file');
+    } else {
+        selectedFileDiv.textContent = '';
+        uploadArea.classList.remove('has-file');
+    }
+}
+
+// Update file input change handler
+document.getElementById('csvFile').addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    updateFileDisplay(file);
+});
+
+// Update drop handler
+uploadArea.addEventListener('drop', (e) => {
+    e.preventDefault();
+    uploadArea.style.borderColor = '#ddd';
+    
+    const file = e.dataTransfer.files[0];
+    if (file.type === 'text/csv') {
+        document.getElementById('csvFile').files = e.dataTransfer.files;
+        updateFileDisplay(file);
+    } else {
+        alert('Please upload a CSV file!');
+    }
+});
+
+// Fix the processing issue in processCSV function
 async function processCSV() {
     const fileInput = document.getElementById('csvFile');
     const file = fileInput.files[0];
@@ -80,53 +114,28 @@ async function processCSV() {
 
     const reader = new FileReader();
     reader.onload = async function(event) {
-        console.log('File read successfully');
-        const csvData = event.target.result;
-        const rows = csvData.split('\n').filter(row => row.trim());
-        console.log('Total rows found:', rows.length);
-        
-        // Remove header row
-        rows.shift();
-        console.log('Processing rows after header:', rows.length);
-
         try {
+            console.log('File read successfully');
+            const csvData = event.target.result;
+            const rows = csvData.split('\n').filter(row => row.trim());
+            console.log('Total rows found:', rows.length);
+            
+            // Remove header row
+            rows.shift();
+            console.log('Processing rows after header:', rows.length);
+
             // Format all rows into the required structure
-            console.log('Starting data formatting...');
             const requestData = rows.map((row, index) => {
-                console.log(`Processing row ${index + 1}:`, row);
                 const [listingId, weight] = row.split(',').map(item => item.trim());
-                
-                if (!listingId || !weight) {
-                    console.log(`Invalid data in row ${index + 1}`, { listingId, weight });
-                    statusText.textContent = `Invalid data in row ${index + 1}. Both listingId and weight are required.`;
-                    return null;
-                }
-
-                if (isNaN(weight)) {
-                    console.log(`Invalid weight in row ${index + 1}`, { weight });
-                    statusText.textContent = `Invalid weight in row ${index + 1}. Weight must be a number.`;
-                    return null;
-                }
-
                 return {
                     listingId: listingId,
                     deadWeightInKg: Number(parseFloat(weight).toFixed(3))
                 };
-            }).filter(item => item !== null);
-
-            console.log('Formatted data:', requestData);
-
-            if (requestData.length === 0) {
-                console.log('No valid records found');
-                statusText.textContent = 'No valid records found in CSV.';
-                return;
-            }
-
-            // Show processing status
-            statusText.textContent = 'Processing...';
-            progressBar.style.width = '50%';
+            });
 
             console.log('Making API call with data:', requestData);
+            progressBar.style.width = '50%';
+            
             const response = await fetch('https://test.api.jumbotail.com:6666/api/sku/listing/dead-weight/batch', {
                 method: 'PUT',
                 headers: {
@@ -135,38 +144,29 @@ async function processCSV() {
                 body: JSON.stringify(requestData)
             });
 
-            // Log detailed response information
             console.log('API Response Status:', response.status);
-            console.log('API Response Headers:', Object.fromEntries(response.headers.entries()));
             
-            const responseText = await response.text();
-            console.log('Raw Response:', responseText);
-
             if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}, response: ${responseText}`);
+                const errorText = await response.text();
+                throw new Error(`API Error: ${response.status} - ${errorText}`);
             }
-
-            // Try to parse JSON only if we have content
-            const result = responseText ? JSON.parse(responseText) : {};
-            console.log('Parsed API Response:', result);
 
             progressBar.style.width = '100%';
             statusText.textContent = `Successfully processed ${requestData.length} records!`;
+            
+            // Clear file after successful processing
+            fileInput.value = '';
+            updateFileDisplay(null);
 
         } catch (error) {
-            console.error('Detailed Error:', {
-                message: error.message,
-                stack: error.stack,
-                cause: error.cause
-            });
-            showError(`API Error: ${error.message}`);
+            console.error('Error:', error);
             progressBar.style.backgroundColor = '#ff4444';
-            statusText.textContent = 'API call failed. Check console for details.';
+            statusText.textContent = error.message;
         }
 
+        // Hide status after delay
         setTimeout(() => {
             statusContainer.classList.add('hidden');
-            fileInput.value = '';
         }, 3000);
     };
 

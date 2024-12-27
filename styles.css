@@ -265,3 +265,15 @@ body {
     color: #666;
     line-height: 1.5;
 }
+
+.selected-file {
+    margin-top: 10px;
+    color: #00A650;
+    font-size: 0.9em;
+    word-break: break-all;
+}
+
+.upload-area.has-file {
+    border-color: #00A650;
+    background: rgba(0, 166, 80, 0.05);
+}

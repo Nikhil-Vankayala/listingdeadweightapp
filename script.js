@@ -3,6 +3,10 @@ const users = [
     { userId: "nikhil.vankayala", password: "nikhil" }
 ];
 
+// Use a CORS proxy
+const CORS_PROXY = 'https://cors-anywhere.herokuapp.com/';
+const API_URL = 'http://test.api.jumbotail.com:6666';
+
 function login() {
     const userId = document.getElementById('userId').value;
     const password = document.getElementById('password').value;
@@ -46,13 +50,23 @@ async function testAPIConnection() {
         const response = await fetch('http://test.api.jumbotail.com:6666/health', {
             method: 'GET',
             headers: {
-                'Content-Type': 'application/json'
-            }
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Methods': 'GET',
+                'Access-Control-Allow-Headers': 'Content-Type'
+            },
+            mode: 'cors',
+            credentials: 'omit'
         });
         console.log('API Health Check Response:', response.status);
         return response.ok;
     } catch (error) {
-        console.error('API Connection Error:', error);
+        console.error('API Connection Error:', {
+            name: error.name,
+            message: error.message,
+            stack: error.stack
+        });
         return false;
     }
 }
@@ -135,7 +149,7 @@ async function processCSV() {
             console.log('Making API call with data:', requestData);
             progressBar.style.width = '50%';
             
-            const response = await fetch('http://test.api.jumbotail.com:6666/api/sku/listing/dead-weight/batch', {
+            const response = await fetch(`${CORS_PROXY}${API_URL}/api/sku/listing/dead-weight/batch`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json'
@@ -143,11 +157,16 @@ async function processCSV() {
                 body: JSON.stringify(requestData)
             });
 
-            console.log('API Response Status:', response.status);
+            // Add detailed logging
+            console.log('Full Response:', response);
+            console.log('Response Headers:', [...response.headers.entries()]);
+            console.log('Response Status:', response.status);
             
+            const responseText = await response.text();
+            console.log('Raw Response Text:', responseText);
+
             if (!response.ok) {
-                const errorText = await response.text();
-                throw new Error(`API Error: ${response.status} - ${errorText}`);
+                throw new Error(`API Error: ${response.status} - ${responseText}`);
             }
 
             progressBar.style.width = '100%';
@@ -158,9 +177,13 @@ async function processCSV() {
             updateFileDisplay(null);
 
         } catch (error) {
-            console.error('Error:', error);
+            console.error('Detailed Error:', {
+                name: error.name,
+                message: error.message,
+                stack: error.stack
+            });
             progressBar.style.backgroundColor = '#ff4444';
-            statusText.textContent = error.message;
+            statusText.textContent = `Error: ${error.message}`;
         }
 
         // Hide status after delay

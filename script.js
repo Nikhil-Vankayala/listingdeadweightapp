@@ -49,36 +49,41 @@ function processCSV() {
         
         statusContainer.classList.remove('hidden');
 
-        // Format all rows into the required structure
-        const formattedData = rows.map(row => {
-            const [listingId, weight] = row.split(',').map(item => item.trim());
-            return {
-                listingId: listingId,
-                deadWeightInKg: Number(weight).toFixed(3)
-            };
-        });
-        
         try {
+            // Format all rows into the required structure
+            const requestData = rows.map(row => {
+                const [listingId, weight] = row.split(',').map(item => item.trim());
+                return {
+                    listingId: listingId,
+                    deadWeightInKg: Number(parseFloat(weight).toFixed(3))  // Ensure 3 decimal places
+                };
+            });
+
+            // Make the API call with all records
             const response = await fetch('https://shipmentgateway.prod.jumbotail.com/api/sku/listing/dead-weight/batch', {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': 'Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJuaWtoaWwudmFua2F5YWxhQGp1bWJvdGFpbC5jb20iLCJST0xFUyI6WyJTRUxMRVJfSjI0X1JPTEUiLCJBTExfUkVTT1VSQ0VfREVYVEVSIiwiU0VMTEVSX1BSSUNFX1NUT0NLX1VQREFURSIsIlNFTExFUl9PUFNfUk9MRSIsIkdUTV9BUkVBX1NBTEVTX01BTkFHRVIiLCJESVNUUklCVVRPUiIsIlNFTExFUl9GQ19NQU5BR0VSIiwiU0VMTEVSX0FDQ09VTlRfRVhFQ1VUSVZFIiwiU0VMTEVSIiwiU0VMTEVSX0RJU1RfU0FMRVNfTUFOQUdFUiJdLCJpc3MiOiJKdW1ib3RhaWwiLCJpYXQiOjE3MzUxODEzODd9.AwqgJDz1OT64GysGByEWj5BtPAQIVdpEM3J1idRO3ms'
                 },
-                body: JSON.stringify(formattedData)
+                body: JSON.stringify(requestData)
             });
 
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
 
+            const result = await response.json();
+            console.log('API Response:', result);
+
             // Update progress bar to 100%
             progressBar.style.width = '100%';
-            statusText.textContent = 'Processing complete!';
+            statusText.textContent = `Successfully processed ${requestData.length} records!`;
 
         } catch (error) {
             console.error('Error:', error);
             statusText.textContent = `Error: ${error.message}`;
+            progressBar.style.backgroundColor = '#ff4444';
         }
 
         setTimeout(() => {

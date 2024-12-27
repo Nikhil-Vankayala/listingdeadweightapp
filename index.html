@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
-    <title>CSV Processor</title>
+    <title>Listing Dead Weight Update Tool</title>
     <link rel="stylesheet" href="styles.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
 </head>
@@ -12,21 +12,45 @@
     <div class="container">
         <!-- Login Form -->
         <div id="loginForm" class="form-container">
-            <h2>Welcome Back!</h2>
-            <div class="input-group">
-                <input type="text" id="userId" required>
-                <label>User ID</label>
+            <div class="welcome-section">
+                <h1>👋 Welcome!</h1>
+                <h2>Listing Dead Weight Update Tool</h2>
+                <p class="welcome-text">
+                    This tool helps you update listing dead weights efficiently through CSV uploads.
+                    Login to get started.
+                </p>
             </div>
-            <div class="input-group">
-                <input type="password" id="password" required>
-                <label>Password</label>
+            <div class="login-section">
+                <div class="input-group">
+                    <input type="text" id="userId" required>
+                    <label>User ID</label>
+                </div>
+                <div class="input-group">
+                    <input type="password" id="password" required>
+                    <label>Password</label>
+                </div>
+                <button onclick="login()" class="btn">Login to Continue</button>
+                <p class="help-text">Need help? Contact the support team.</p>
             </div>
-            <button onclick="login()" class="btn">Login</button>
         </div>
 
         <!-- CSV Upload Section (Initially Hidden) -->
         <div id="uploadSection" class="form-container hidden">
             <h2>Upload CSV File</h2>
+            <p class="instructions">
+                Please upload a CSV file with the following format:<br>
+                - First row should be headers: listingId,deadWeightInKg<br>
+                - Each subsequent row should contain the listing ID and weight<br>
+                - Weights should be in kilograms (up to 3 decimal places)
+            </p>
+            <div class="sample-csv">
+                <p>Sample CSV Format:</p>
+                <pre>
+listingId,deadWeightInKg
+LST-1203824039,0.060
+LST-1203824040,0.075</pre>
+                <a href="#" onclick="downloadSampleCSV()" class="btn-link">Download Sample CSV</a>
+            </div>
             <div class="upload-area">
                 <input type="file" id="csvFile" accept=".csv" class="file-input">
                 <label for="csvFile" class="file-label">
@@ -44,5 +68,19 @@
         </div>
     </div>
     <script src="script.js"></script>
+    <script>
+        function downloadSampleCSV() {
+            const csvContent = "listingId,deadWeightInKg\nLST-1203824039,0.060\nLST-1203824040,0.075";
+            const blob = new Blob([csvContent], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'sample_deadweight.csv';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
+        }
+    </script>
 </body>
 </html> 

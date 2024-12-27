@@ -68,10 +68,28 @@ LST-1203824040,0.075</pre>
             <button onclick="logout()" class="btn btn-secondary">Logout</button>
         </div>
     </div>
+    <div id="errorPopup" class="popup hidden">
+        <div class="popup-content">
+            <h3>Error</h3>
+            <p id="errorMessage"></p>
+            <button onclick="closePopup()" class="btn">Close</button>
+        </div>
+    </div>
     <script src="script.js"></script>
     <script>
         function downloadSampleCSV() {
-            const csvContent = "listingId,deadWeightInKg\nLST-1203824039,0.060\nLST-1203824040,0.075";
+            const csvContent = `listingId,deadWeightInKg
+LST-1203824039,0.060
+LST-1203824040,0.075
+LST-1203824041,1.200
+LST-1203824042,0.500
+LST-1203824043,2.450
+LST-1203824044,0.125
+LST-1203824045,0.890
+LST-1203824046,1.750
+LST-1203824047,0.250
+LST-1203824048,0.333`;
+            
             const blob = new Blob([csvContent], { type: 'text/csv' });
             const url = window.URL.createObjectURL(blob);
             const a = document.createElement('a');

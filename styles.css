@@ -233,4 +233,36 @@ body {
     pointer-events: none;
     z-index: -1;
 }
-</code_block_to_apply_changes_from> 
+
+.popup {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.popup-content {
+    background: white;
+    padding: 30px;
+    border-radius: 10px;
+    max-width: 400px;
+    width: 90%;
+    text-align: center;
+}
+
+.popup h3 {
+    color: #ff4444;
+    margin-bottom: 15px;
+}
+
+.popup p {
+    margin-bottom: 20px;
+    color: #666;
+    line-height: 1.5;
+}

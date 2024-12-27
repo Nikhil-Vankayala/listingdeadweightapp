@@ -2,7 +2,8 @@
 const users = [
     { userId: "user1", password: "pass1" },
     { userId: "user2", password: "pass2" },
-    { userId: "nikhil.vankayala", password: "nikhil" }
+    { userId: "nikhil.vankayala", password: "nikhil" },
+    { userId: "alok.singh", password: "alokji" }
 ];
 
 function login() {

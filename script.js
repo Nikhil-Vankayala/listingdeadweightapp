@@ -38,16 +38,44 @@ function closePopup() {
     document.getElementById('errorPopup').classList.add('hidden');
 }
 
-function processCSV() {
+// Add this function to test API connectivity
+async function testAPIConnection() {
+    console.log('Testing API connection...');
+    try {
+        const response = await fetch('https://shipmentgateway.prod.jumbotail.com/health', {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJuaWtoaWwudmFua2F5YWxhQGp1bWJvdGFpbC5jb20iLCJST0xFUyI6WyJTRUxMRVJfSjI0X1JPTEUiLCJBTExfUkVTT1VSQ0VfREVYVEVSIiwiU0VMTEVSX1BSSUNFX1NUT0NLX1VQREFURSIsIlNFTExFUl9PUFNfUk9MRSIsIkdUTV9BUkVBX1NBTEVTX01BTkFHRVIiLCJESVNUUklCVVRPUiIsIlNFTExFUl9GQ19NQU5BR0VSIiwiU0VMTEVSX0FDQ09VTlRfRVhFQ1VUSVZFIiwiU0VMTEVSIiwiU0VMTEVSX0RJU1RfU0FMRVNfTUFOQUdFUiJdLCJpc3MiOiJKdW1ib3RhaWwiLCJpYXQiOjE3MzUzMDU1Mzd9.-dPAWc8S3urLyoZE1coLw2-0KEYYriE-TTGaRCmY5JM'
+            }
+        });
+        console.log('API Health Check Response:', response.status);
+        return response.ok;
+    } catch (error) {
+        console.error('API Connection Error:', error);
+        return false;
+    }
+}
+
+// Modify processCSV to check connection first
+async function processCSV() {
     const fileInput = document.getElementById('csvFile');
     const file = fileInput.files[0];
     const statusContainer = document.getElementById('processingStatus');
     const progressBar = document.querySelector('.progress');
     const statusText = document.getElementById('statusText');
 
-    debugger; // This will pause execution here
-
     console.log('Starting CSV processing...', { fileName: file?.name });
+
+    // Test API connection first
+    statusText.textContent = 'Testing API connection...';
+    const isConnected = await testAPIConnection();
+    if (!isConnected) {
+        console.error('Cannot connect to API');
+        statusText.textContent = 'Cannot connect to API. Please check your network connection.';
+        progressBar.style.backgroundColor = '#ff4444';
+        return;
+    }
 
     // Initialize status container
     statusContainer.classList.remove('hidden');

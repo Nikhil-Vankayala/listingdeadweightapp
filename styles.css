@@ -7,7 +7,7 @@
 
 body {
     min-height: 100vh;
-    background: linear-gradient(45deg, #ff6b6b, #556270);
+    background: linear-gradient(45deg, #00A650, #00C45C);
     display: flex;
     justify-content: center;
     align-items: center;
@@ -59,13 +59,13 @@ body {
 .input-group input:valid + label {
     top: -20px;
     font-size: 12px;
-    color: #ff6b6b;
+    color: #00A650;
 }
 
 .btn {
     width: 100%;
     padding: 12px;
-    background: linear-gradient(45deg, #ff6b6b, #ff5252);
+    background: linear-gradient(45deg, #00A650, #00C45C);
     color: white;
     border: none;
     border-radius: 5px;
@@ -80,11 +80,11 @@ body {
 
 .btn:hover {
     transform: translateY(-3px);
-    box-shadow: 0 5px 15px rgba(255, 107, 107, 0.3);
+    box-shadow: 0 5px 15px rgba(0, 166, 80, 0.3);
 }
 
 .btn-secondary {
-    background: #556270;
+    background: #00C45C;
     margin-top: 10px;
 }
 
@@ -102,7 +102,7 @@ body {
 }
 
 .upload-area:hover {
-    border-color: #ff6b6b;
+    border-color: #00A650;
 }
 
 .file-input {
@@ -115,7 +115,7 @@ body {
 }
 
 .file-label span {
-    color: #ff6b6b;
+    color: #00A650;
 }
 
 .status-container {
@@ -133,7 +133,7 @@ body {
 .progress {
     width: 0%;
     height: 100%;
-    background: #ff6b6b;
+    background: #00A650;
     transition: 0.3s;
 }
 
@@ -163,7 +163,7 @@ body {
 }
 
 .btn-link {
-    color: #ff6b6b;
+    color: #00A650;
     text-decoration: none;
     font-size: 14px;
 }

@@ -43,7 +43,7 @@ function processCSV() {
     const file = fileInput.files[0];
 
     if (!file) {
-        showError('Please select a CSV file first!');
+        statusText.textContent = 'Please select a CSV file first!';
         return;
     }
 
@@ -64,7 +64,8 @@ function processCSV() {
         try {
             // Validate CSV format
             if (rows.length === 0) {
-                throw new Error('CSV file is empty. Please add some records.');
+                statusText.textContent = 'CSV file is empty. Please add some records.';
+                return;
             }
 
             // Format all rows into the required structure
@@ -72,18 +73,25 @@ function processCSV() {
                 const [listingId, weight] = row.split(',').map(item => item.trim());
                 
                 if (!listingId || !weight) {
-                    throw new Error(`Invalid data in row ${index + 1}. Both listingId and weight are required.`);
+                    statusText.textContent = `Invalid data in row ${index + 1}. Both listingId and weight are required.`;
+                    return null;
                 }
 
                 if (isNaN(weight)) {
-                    throw new Error(`Invalid weight in row ${index + 1}. Weight must be a number.`);
+                    statusText.textContent = `Invalid weight in row ${index + 1}. Weight must be a number.`;
+                    return null;
                 }
 
                 return {
                     listingId: listingId,
                     deadWeightInKg: Number(parseFloat(weight).toFixed(3))
                 };
-            });
+            }).filter(item => item !== null);
+
+            if (requestData.length === 0) {
+                statusText.textContent = 'No valid records found in CSV.';
+                return;
+            }
 
             const response = await fetch('https://shipmentgateway.prod.jumbotail.com/api/sku/listing/dead-weight/batch', {
                 method: 'PUT',
@@ -107,9 +115,9 @@ function processCSV() {
 
         } catch (error) {
             console.error('Error:', error);
-            showError(error.message);
+            showError(`API Error: ${error.message}`); // Only show popup for API errors
             progressBar.style.backgroundColor = '#ff4444';
-            statusText.textContent = 'Error occurred. Check popup for details.';
+            statusText.textContent = 'API call failed. Check popup for details.';
         }
 
         setTimeout(() => {
@@ -119,7 +127,7 @@ function processCSV() {
     };
 
     reader.onerror = function() {
-        showError('Error reading the CSV file. Please try again.');
+        statusText.textContent = 'Error reading the CSV file. Please try again.';
     };
 
     reader.readAsText(file);

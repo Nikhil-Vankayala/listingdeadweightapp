@@ -143,24 +143,45 @@ async function processCSV() {
             console.log('Making API call with data:', requestData);
             progressBar.style.width = '50%';
             
-            // Direct API call with CORS headers
-            const response = await fetch('http://test.api.jumbotail.com:6666/api/sku/listing/dead-weight/batch', {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Accept': '*/*',
-                    'Origin': window.location.origin
-                },
-                mode: 'no-cors', // Important: This allows the request to be made
-                body: JSON.stringify(requestData)
-            });
+            // Create a promise to handle XMLHttpRequest
+            const makeRequest = () => {
+                return new Promise((resolve, reject) => {
+                    const xhr = new XMLHttpRequest();
+                    xhr.open('PUT', 'http://test.api.jumbotail.com:6666/api/sku/listing/dead-weight/batch', true);
+                    xhr.setRequestHeader('Content-Type', 'application/json');
+                    
+                    xhr.onload = function() {
+                        if (xhr.status >= 200 && xhr.status < 300) {
+                            resolve(xhr.response);
+                        } else {
+                            reject({
+                                status: xhr.status,
+                                statusText: xhr.statusText,
+                                response: xhr.response
+                            });
+                        }
+                    };
+                    
+                    xhr.onerror = function() {
+                        console.error('XHR Error:', xhr.statusText);
+                        reject({
+                            status: xhr.status,
+                            statusText: xhr.statusText,
+                            response: xhr.response
+                        });
+                    };
 
+                    console.log('Sending data:', JSON.stringify(requestData));
+                    xhr.send(JSON.stringify(requestData));
+                });
+            };
+
+            // Make the request
+            const response = await makeRequest();
             console.log('Response received:', response);
             
-            // Since mode is 'no-cors', we can't access response details
-            // We'll assume success if we get here
             progressBar.style.width = '100%';
-            statusText.textContent = `Request sent successfully for ${requestData.length} records!`;
+            statusText.textContent = `Successfully processed ${requestData.length} records!`;
             
             // Clear file after successful processing
             fileInput.value = '';
@@ -168,15 +189,14 @@ async function processCSV() {
 
         } catch (error) {
             console.error('Detailed Error:', {
-                name: error.name,
-                message: error.message,
-                stack: error.stack
+                status: error.status,
+                statusText: error.statusText,
+                response: error.response
             });
             progressBar.style.backgroundColor = '#ff4444';
-            statusText.textContent = `Error: ${error.message}`;
+            statusText.textContent = `Error: ${error.statusText || 'Failed to process request'}`;
         }
 
-        // Hide status after delay
         setTimeout(() => {
             statusContainer.classList.add('hidden');
         }, 3000);

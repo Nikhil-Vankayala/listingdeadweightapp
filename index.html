@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+    <title>CSV Processor</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <!-- Login Form -->
+        <div id="loginForm" class="form-container">
+            <h2>Welcome Back!</h2>
+            <div class="input-group">
+                <input type="text" id="userId" required>
+                <label>User ID</label>
+            </div>
+            <div class="input-group">
+                <input type="password" id="password" required>
+                <label>Password</label>
+            </div>
+            <button onclick="login()" class="btn">Login</button>
+        </div>
+
+        <!-- CSV Upload Section (Initially Hidden) -->
+        <div id="uploadSection" class="form-container hidden">
+            <h2>Upload CSV File</h2>
+            <div class="upload-area">
+                <input type="file" id="csvFile" accept=".csv" class="file-input">
+                <label for="csvFile" class="file-label">
+                    <span>Choose a file</span> or drag it here
+                </label>
+            </div>
+            <div id="processingStatus" class="status-container hidden">
+                <div class="progress-bar">
+                    <div class="progress"></div>
+                </div>
+                <p id="statusText"></p>
+            </div>
+            <button onclick="processCSV()" class="btn">Process CSV</button>
+            <button onclick="logout()" class="btn btn-secondary">Logout</button>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html> 

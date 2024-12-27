@@ -142,44 +142,22 @@ async function processCSV() {
 
             console.log('Making API call with data:', requestData);
             progressBar.style.width = '50%';
-            
-            // Create a promise to handle XMLHttpRequest
-            const makeRequest = () => {
-                return new Promise((resolve, reject) => {
-                    const xhr = new XMLHttpRequest();
-                    xhr.open('PUT', 'http://test.api.jumbotail.com:6666/api/sku/listing/dead-weight/batch', true);
-                    xhr.setRequestHeader('Content-Type', 'application/json');
-                    
-                    xhr.onload = function() {
-                        if (xhr.status >= 200 && xhr.status < 300) {
-                            resolve(xhr.response);
-                        } else {
-                            reject({
-                                status: xhr.status,
-                                statusText: xhr.statusText,
-                                response: xhr.response
-                            });
-                        }
-                    };
-                    
-                    xhr.onerror = function() {
-                        console.error('XHR Error:', xhr.statusText);
-                        reject({
-                            status: xhr.status,
-                            statusText: xhr.statusText,
-                            response: xhr.response
-                        });
-                    };
 
-                    console.log('Sending data:', JSON.stringify(requestData));
-                    xhr.send(JSON.stringify(requestData));
-                });
-            };
+            const response = await fetch('http://test.api.jumbotail.com:6666/api/sku/listing/dead-weight/batch', {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(requestData)
+            });
 
-            // Make the request
-            const response = await makeRequest();
-            console.log('Response received:', response);
+            console.log('Response status:', response.status);
             
+            if (!response.ok) {
+                const errorText = await response.text();
+                throw new Error(`API Error: ${response.status} - ${errorText}`);
+            }
+
             progressBar.style.width = '100%';
             statusText.textContent = `Successfully processed ${requestData.length} records!`;
             
@@ -188,13 +166,9 @@ async function processCSV() {
             updateFileDisplay(null);
 
         } catch (error) {
-            console.error('Detailed Error:', {
-                status: error.status,
-                statusText: error.statusText,
-                response: error.response
-            });
+            console.error('Error:', error);
             progressBar.style.backgroundColor = '#ff4444';
-            statusText.textContent = `Error: ${error.statusText || 'Failed to process request'}`;
+            statusText.textContent = error.message;
         }
 
         setTimeout(() => {

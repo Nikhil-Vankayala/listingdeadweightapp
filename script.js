@@ -45,6 +45,10 @@ function processCSV() {
     const progressBar = document.querySelector('.progress');
     const statusText = document.getElementById('statusText');
 
+    debugger; // This will pause execution here
+
+    console.log('Starting CSV processing...', { fileName: file?.name });
+
     // Initialize status container
     statusContainer.classList.remove('hidden');
     progressBar.style.width = '0%';
@@ -57,29 +61,38 @@ function processCSV() {
 
     const reader = new FileReader();
     reader.onload = async function(event) {
+        debugger; // This will pause after file is read
+        console.log('File read successfully');
         const csvData = event.target.result;
         const rows = csvData.split('\n').filter(row => row.trim());
+        console.log('Total rows found:', rows.length);
         
         // Remove header row
         rows.shift();
+        console.log('Processing rows after header:', rows.length);
 
         try {
             // Validate CSV format
             if (rows.length === 0) {
+                console.log('Error: Empty CSV file');
                 statusText.textContent = 'CSV file is empty. Please add some records.';
                 return;
             }
 
             // Format all rows into the required structure
+            console.log('Starting data formatting...');
             const requestData = rows.map((row, index) => {
+                console.log(`Processing row ${index + 1}:`, row);
                 const [listingId, weight] = row.split(',').map(item => item.trim());
                 
                 if (!listingId || !weight) {
+                    console.log(`Invalid data in row ${index + 1}`, { listingId, weight });
                     statusText.textContent = `Invalid data in row ${index + 1}. Both listingId and weight are required.`;
                     return null;
                 }
 
                 if (isNaN(weight)) {
+                    console.log(`Invalid weight in row ${index + 1}`, { weight });
                     statusText.textContent = `Invalid weight in row ${index + 1}. Weight must be a number.`;
                     return null;
                 }
@@ -90,7 +103,10 @@ function processCSV() {
                 };
             }).filter(item => item !== null);
 
+            console.log('Formatted data:', requestData);
+
             if (requestData.length === 0) {
+                console.log('No valid records found');
                 statusText.textContent = 'No valid records found in CSV.';
                 return;
             }
@@ -99,17 +115,23 @@ function processCSV() {
             statusText.textContent = 'Processing...';
             progressBar.style.width = '50%';
 
+            console.log('Making API call with data:', requestData);
+            debugger; // This will pause before making the API call
             const response = await fetch('https://shipmentgateway.prod.jumbotail.com/api/sku/listing/dead-weight/batch', {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': 'Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJuaWtoaWwudmFua2F5YWxhQGp1bWJvdGFpbC5jb20iLCJST0xFUyI6WyJTRUxMRVJfSjI0X1JPTEUiLCJBTExfUkVTT1VSQ0VfREVYVEVSIiwiU0VMTEVSX1BSSUNFX1NUT0NLX1VQREFURSIsIlNFTExFUl9PUFNfUk9MRSIsIkdUTV9BUkVBX1NBTEVTX01BTkFHRVIiLCJESVNUUklCVVRPUiIsIlNFTExFUl9GQ19NQU5BR0VSIiwiU0VMTEVSX0FDQ09VTlRfRVhFQ1VUSVZFIiwiU0VMTEVSIiwiU0VMTEVSX0RJU1RfU0FMRVNfTUFOQUdFUiJdLCJpc3MiOiJKdW1ib3RhaWwiLCJpYXQiOjE3MzUxODEzODd9.AwqgJDz1OT64GysGByEWj5BtPAQIVdpEM3J1idRO3ms'
+                    'Authorization': 'Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJuaWtoaWwudmFua2F5YWxhQGp1bWJvdGFpbC5jb20iLCJST0xFUyI6WyJTRUxMRVJfSjI0X1JPTEUiLCJBTExfUkVTT1VSQ0VfREVYVEVSIiwiU0VMTEVSX1BSSUNFX1NUT0NLX1VQREFURSIsIlNFTExFUl9PUFNfUk9MRSIsIkdUTV9BUkVBX1NBTEVTX01BTkFHRVIiLCJESVNUUklCVVRPUiIsIlNFTExFUl9GQ19NQU5BR0VSIiwiU0VMTEVSX0FDQ09VTlRfRVhFQ1VUSVZFIiwiU0VMTEVSIiwiU0VMTEVSX0RJU1RfU0FMRVNfTUFOQUdFUiJdLCJpc3MiOiJKdW1ib3RhaWwiLCJpYXQiOjE3MzUzMDU1Mzd9.-dPAWc8S3urLyoZE1coLw2-0KEYYriE-TTGaRCmY5JM'
                 },
                 body: JSON.stringify(requestData)
             });
 
+            debugger; // This will pause after API response
+            console.log('API response status:', response.status);
+            
             if (!response.ok) {
                 const errorData = await response.json().catch(() => null);
+                console.error('API error:', errorData);
                 throw new Error(errorData?.message || `HTTP error! status: ${response.status}`);
             }
 
@@ -120,8 +142,8 @@ function processCSV() {
             statusText.textContent = `Successfully processed ${requestData.length} records!`;
 
         } catch (error) {
-            console.error('Error:', error);
-            showError(`API Error: ${error.message}`); // Only show popup for API errors
+            console.error('Error details:', error);
+            showError(`API Error: ${error.message}`);
             progressBar.style.backgroundColor = '#ff4444';
             statusText.textContent = 'API call failed. Check popup for details.';
         }
@@ -132,7 +154,8 @@ function processCSV() {
         }, 3000);
     };
 
-    reader.onerror = function() {
+    reader.onerror = function(error) {
+        console.error('File reading error:', error);
         statusText.textContent = 'Error reading the CSV file. Please try again.';
     };
 

@@ -233,7 +233,6 @@ body {
     pointer-events: none;
     z-index: -1;
 }
-
 .popup {
     position: fixed;
     top: 0;

@@ -42,11 +42,11 @@ function closePopup() {
 async function testAPIConnection() {
     console.log('Testing API connection...');
     try {
-        const response = await fetch('https://shipmentgateway.prod.jumbotail.com/health', {
+        const response = await fetch('https://test.api.jumbotail.com:6666/health', {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': 'Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJuaWtoaWwudmFua2F5YWxhQGp1bWJvdGFpbC5jb20iLCJST0xFUyI6WyJTRUxMRVJfSjI0X1JPTEUiLCJBTExfUkVTT1VSQ0VfREVYVEVSIiwiU0VMTEVSX1BSSUNFX1NUT0NLX1VQREFURSIsIlNFTExFUl9PUFNfUk9MRSIsIkdUTV9BUkVBX1NBTEVTX01BTkFHRVIiLCJESVNUUklCVVRPUiIsIlNFTExFUl9GQ19NQU5BR0VSIiwiU0VMTEVSX0FDQ09VTlRfRVhFQ1VUSVZFIiwiU0VMTEVSIiwiU0VMTEVSX0RJU1RfU0FMRVNfTUFOQUdFUiJdLCJpc3MiOiJKdW1ib3RhaWwiLCJpYXQiOjE3MzUzMDU1Mzd9.-dPAWc8S3urLyoZE1coLw2-0KEYYriE-TTGaRCmY5JM'
+                'Authorization': 'Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJuaWtoaWwudmFua2F5YWxhQGp1bWJvdGFpbC5jb20iLCJST0xFUyI6WyJTRUxMRVJfSjI0X1JPTEUiLCJBTExfUkVTT1VSQ0VfREVYVEVSIiwiU0VMTEVSX1BSSUNFX1NUT0NLX1VQREFURSIsIlNFTExFUl9PUFNfUk9MRSIsIkdUTV9BUkVBX1NBTEVTX01BTkFHRVIiLCJESVNUUklCVVRPUiIsIlNFTExFUl9GQ19NQU5BR0VSIiwiU0VMTEVSX0FDQ09VTlRfRVhFQ1VUSVZFIiwiU0VMTEVSIiwiU0VMTEVSX0RJU1RfU0FMRVNfTUFOQUdFUiJdLCJpc3MiOiJKdW1ib3RhaWwiLCJpYXQiOjE3MzUxODEzODd9.AwqgJDz1OT64GysGByEWj5BtPAQIVdpEM3J1idRO3ms'
             }
         });
         console.log('API Health Check Response:', response.status);
@@ -67,20 +67,10 @@ async function processCSV() {
 
     console.log('Starting CSV processing...', { fileName: file?.name });
 
-    // Test API connection first
-    statusText.textContent = 'Testing API connection...';
-    const isConnected = await testAPIConnection();
-    if (!isConnected) {
-        console.error('Cannot connect to API');
-        statusText.textContent = 'Cannot connect to API. Please check your network connection.';
-        progressBar.style.backgroundColor = '#ff4444';
-        return;
-    }
-
     // Initialize status container
     statusContainer.classList.remove('hidden');
     progressBar.style.width = '0%';
-    progressBar.style.backgroundColor = '#00A650'; // Reset to default color
+    progressBar.style.backgroundColor = '#00A650';
 
     if (!file) {
         statusText.textContent = 'Please select a CSV file first!';
@@ -89,7 +79,6 @@ async function processCSV() {
 
     const reader = new FileReader();
     reader.onload = async function(event) {
-        debugger; // This will pause after file is read
         console.log('File read successfully');
         const csvData = event.target.result;
         const rows = csvData.split('\n').filter(row => row.trim());
@@ -100,13 +89,6 @@ async function processCSV() {
         console.log('Processing rows after header:', rows.length);
 
         try {
-            // Validate CSV format
-            if (rows.length === 0) {
-                console.log('Error: Empty CSV file');
-                statusText.textContent = 'CSV file is empty. Please add some records.';
-                return;
-            }
-
             // Format all rows into the required structure
             console.log('Starting data formatting...');
             const requestData = rows.map((row, index) => {
@@ -144,36 +126,41 @@ async function processCSV() {
             progressBar.style.width = '50%';
 
             console.log('Making API call with data:', requestData);
-            debugger; // This will pause before making the API call
-            const response = await fetch('https://shipmentgateway.prod.jumbotail.com/api/sku/listing/dead-weight/batch', {
+            const response = await fetch('https://test.api.jumbotail.com:6666/api/sku/listing/dead-weight/batch', {
                 method: 'PUT',
                 headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': 'Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJuaWtoaWwudmFua2F5YWxhQGp1bWJvdGFpbC5jb20iLCJST0xFUyI6WyJTRUxMRVJfSjI0X1JPTEUiLCJBTExfUkVTT1VSQ0VfREVYVEVSIiwiU0VMTEVSX1BSSUNFX1NUT0NLX1VQREFURSIsIlNFTExFUl9PUFNfUk9MRSIsIkdUTV9BUkVBX1NBTEVTX01BTkFHRVIiLCJESVNUUklCVVRPUiIsIlNFTExFUl9GQ19NQU5BR0VSIiwiU0VMTEVSX0FDQ09VTlRfRVhFQ1VUSVZFIiwiU0VMTEVSIiwiU0VMTEVSX0RJU1RfU0FMRVNfTUFOQUdFUiJdLCJpc3MiOiJKdW1ib3RhaWwiLCJpYXQiOjE3MzUzMDU1Mzd9.-dPAWc8S3urLyoZE1coLw2-0KEYYriE-TTGaRCmY5JM'
+                    'Content-Type': 'application/json'
                 },
                 body: JSON.stringify(requestData)
             });
 
-            debugger; // This will pause after API response
-            console.log('API response status:', response.status);
+            // Log detailed response information
+            console.log('API Response Status:', response.status);
+            console.log('API Response Headers:', Object.fromEntries(response.headers.entries()));
             
+            const responseText = await response.text();
+            console.log('Raw Response:', responseText);
+
             if (!response.ok) {
-                const errorData = await response.json().catch(() => null);
-                console.error('API error:', errorData);
-                throw new Error(errorData?.message || `HTTP error! status: ${response.status}`);
+                throw new Error(`HTTP error! status: ${response.status}, response: ${responseText}`);
             }
 
-            const result = await response.json();
-            console.log('API Response:', result);
+            // Try to parse JSON only if we have content
+            const result = responseText ? JSON.parse(responseText) : {};
+            console.log('Parsed API Response:', result);
 
             progressBar.style.width = '100%';
             statusText.textContent = `Successfully processed ${requestData.length} records!`;
 
         } catch (error) {
-            console.error('Error details:', error);
+            console.error('Detailed Error:', {
+                message: error.message,
+                stack: error.stack,
+                cause: error.cause
+            });
             showError(`API Error: ${error.message}`);
             progressBar.style.backgroundColor = '#ff4444';
-            statusText.textContent = 'API call failed. Check popup for details.';
+            statusText.textContent = 'API call failed. Check console for details.';
         }
 
         setTimeout(() => {
